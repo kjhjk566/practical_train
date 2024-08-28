@@ -3,15 +3,14 @@ package com.example.practical_train_backend.collector;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.example.practical_train_backend.entity.AnomalyInfo;
 import com.example.practical_train_backend.entity.Experiment;
 import com.example.practical_train_backend.entity.MTS;
 import com.example.practical_train_backend.entity.ResponseVO;
 import com.example.practical_train_backend.service.AnomalyDataService;
 import com.example.practical_train_backend.utils.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 import com.alibaba.fastjson.JSONObject;
@@ -42,8 +41,8 @@ public class AnomalyDataCollector {
         return ResponseVO.success(experiment);
     }
 
-    @GetMapping("/inject")
-    public ResponseVO<MTS> inject(){
+    @PostMapping("/inject")
+    public ResponseVO<MTS> inject(@RequestBody AnomalyInfo anomalyInfo){
         JsonUtil jsonUtil = new JsonUtil();
         String myPath = "templateData/normal_1.json";
         String path = JsonUtil.class.getClassLoader().getResource(myPath).getPath();
@@ -66,14 +65,41 @@ public class AnomalyDataCollector {
                 doubleArray[i][j] = subArray.getDouble(j);
             }
         }
-        MTS mts = new MTS(doubleArray);
-//        anomalyDataService.MultivariateDataGenerator(doubleArray);
-//        anomalyDataService.pointGlobalOutliers(mts, 0, 0.01, 3.5, 5);
-//        anomalyDataService.pointContextualOutliers(mts, 1, 0.01, 5, 5);
-//        anomalyDataService.collectiveGlobalOutliers(mts, 2, 0.1, 10, 20, "square", 1.5, 0.03, 20, 0.04, 0.0, new double[1]);
 
-        anomalyDataService.collectiveTrendOutliers(mts, 4, 0.3, 0.5, 20);
-//        anomalyDataService.collectiveSeasonalOutliers(mts, 3, 0.2, 10, 100);
+
+        MTS mts = new MTS(doubleArray);
+
+        if (anomalyInfo.getGlobalIndex() != null) {
+            for (Integer index : anomalyInfo.getGlobalIndex()) {
+                anomalyDataService.pointGlobalOutliers(mts, index, anomalyInfo.getGlobalRatio(), anomalyInfo.getGlobalFactor(), anomalyInfo.getGlobalRadius());
+            }
+        }
+
+        if (anomalyInfo.getContextIndex() != null) {
+            for (Integer index : anomalyInfo.getContextIndex()) {
+                anomalyDataService.pointContextualOutliers(mts, index, anomalyInfo.getContextRatio(), anomalyInfo.getContextFactor(), anomalyInfo.getContextRadius());
+            }
+        }
+
+        if (anomalyInfo.getPatternIndex() != null) {
+            String shape = anomalyInfo.getPatterns()==1 ? "square" : "triangle";
+            for (Integer index : anomalyInfo.getPatternIndex()) {
+                anomalyDataService.collectiveGlobalOutliers(mts, index, anomalyInfo.getPatternRatio(), anomalyInfo.getPatternFactor(), anomalyInfo.getPatternRadius(), shape, 1.5, 0.03, 20, 0.04, 0.0, new double[1]);
+            }
+        }
+
+        if (anomalyInfo.getTrendIndex() != null) {
+            for (Integer index : anomalyInfo.getTrendIndex()) {
+                anomalyDataService.collectiveTrendOutliers(mts, index, anomalyInfo.getTrendRatio(), anomalyInfo.getTrendFactor(), anomalyInfo.getTrendRadius());
+            }
+        }
+
+        if (anomalyInfo.getSeasonalIndex() != null) {
+            for (Integer index : anomalyInfo.getSeasonalIndex()) {
+                anomalyDataService.collectiveSeasonalOutliers(mts, index, anomalyInfo.getSeasonalRatio(), anomalyInfo.getSeasonalFactor(), anomalyInfo.getSeasonalRadius());
+            }
+        }
+
         return ResponseVO.success(mts);
     }
 
