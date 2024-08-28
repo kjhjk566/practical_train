@@ -2,6 +2,7 @@ package com.example.practical_train_backend.service;
 
 import com.example.practical_train_backend.dao.ExperimentMapper;
 import com.example.practical_train_backend.entity.Experiment;
+import com.example.practical_train_backend.entity.MTS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
@@ -11,22 +12,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Random;
 import java.util.stream.IntStream;
-import java.util.Arrays;
 
 @Service
 public class AnomalyDataService {
 
-    private double[][] data;
-    private int dim;
-    private int STREAM_LENGTH;
-    private int[] label;
-    private double[][] dataOrigin;
 
 
 
@@ -42,17 +34,6 @@ public class AnomalyDataService {
         }
     }
 
-    public void MultivariateDataGenerator(double[][] data) {
-        this.data = data;
-        this.dim = data.length;
-        this.STREAM_LENGTH = data[0].length;
-        this.label = new int[STREAM_LENGTH];
-        this.dataOrigin = new double[dim][STREAM_LENGTH];
-        for (int i = 0; i < dim; i++) {
-            System.arraycopy(data[i], 0, dataOrigin[i], 0, STREAM_LENGTH);
-        }
-    }
-
     private double std(double[] array) {
         double mean = Arrays.stream(array).average().orElse(0.0);
         double variance = Arrays.stream(array).map(v -> (v - mean) * (v - mean)).average().orElse(0.0);
@@ -60,51 +41,51 @@ public class AnomalyDataService {
     }
 
     // 生成点全球异常值
-    public void pointGlobalOutliers(int dimNo, double ratio, double factor, int radius) {
+    public void pointGlobalOutliers(MTS mts, int dimNo, double ratio, double factor, int radius) {
         Random rand = new Random();
-        int[] position = rand.ints((int) (STREAM_LENGTH * ratio), 0, STREAM_LENGTH).distinct().toArray();
-        double max = Arrays.stream(data[dimNo]).max().orElse(Double.MAX_VALUE);
-        double min = Arrays.stream(data[dimNo]).min().orElse(Double.MIN_VALUE);
+        int[] position = rand.ints((int) (mts.getSTREAM_LENGTH() * ratio), 0, mts.getSTREAM_LENGTH()).distinct().toArray();
+        double max = Arrays.stream(mts.getData()[dimNo]).max().orElse(Double.MAX_VALUE);
+        double min = Arrays.stream(mts.getData()[dimNo]).min().orElse(Double.MIN_VALUE);
 
         for (int i : position) {
             int start = Math.max(0, i - radius);
-            int end = Math.min(STREAM_LENGTH, i + radius);
-            double[] localWindow = Arrays.copyOfRange(dataOrigin[dimNo], start, end);
+            int end = Math.min(mts.getSTREAM_LENGTH(), i + radius);
+            double[] localWindow = Arrays.copyOfRange(mts.getDataOrigin()[dimNo], start, end);
             double localStd = std(localWindow);
-            data[dimNo][i] = dataOrigin[dimNo][i] * factor * localStd;
+            mts.getData()[dimNo][i] = mts.getDataOrigin()[dimNo][i] * factor * localStd;
 
-            if (data[dimNo][i] > max) data[dimNo][i] = max;
-            if (data[dimNo][i] < min) data[dimNo][i] = min;
+            if (mts.getData()[dimNo][i] > max) mts.getData()[dimNo][i] = max;
+            if (mts.getData()[dimNo][i] < min) mts.getData()[dimNo][i] = min;
 
-            label[i] = 1;
+            mts.getLabel()[i] = 1;
         }
     }
 
     // 生成点上下文异常值
-    public void pointContextualOutliers(int dimNo, double ratio, double factor, int radius) {
+    public void pointContextualOutliers(MTS mts, int dimNo, double ratio, double factor, int radius) {
         Random rand = new Random();
-        int[] position = rand.ints((int) (STREAM_LENGTH * ratio), 0, STREAM_LENGTH).distinct().toArray();
-        double max = Arrays.stream(data[dimNo]).max().orElse(Double.MAX_VALUE);
-        double min = Arrays.stream(data[dimNo]).min().orElse(Double.MIN_VALUE);
+        int[] position = rand.ints((int) (mts.getSTREAM_LENGTH() * ratio), 0, mts.getSTREAM_LENGTH()).distinct().toArray();
+        double max = Arrays.stream(mts.getData()[dimNo]).max().orElse(Double.MAX_VALUE);
+        double min = Arrays.stream(mts.getData()[dimNo]).min().orElse(Double.MIN_VALUE);
 
         for (int i : position) {
             int start = Math.max(0, i - radius);
-            int end = Math.min(STREAM_LENGTH, i + radius);
-            double[] localWindow = Arrays.copyOfRange(dataOrigin[dimNo], start, end);
+            int end = Math.min(mts.getSTREAM_LENGTH(), i + radius);
+            double[] localWindow = Arrays.copyOfRange(mts.getDataOrigin()[dimNo], start, end);
             double localStd = std(localWindow);
-            data[dimNo][i] = dataOrigin[dimNo][i] * factor * localStd;
+            mts.getData()[dimNo][i] = mts.getDataOrigin()[dimNo][i] * factor * localStd;
 
-            if (data[dimNo][i] > max) data[dimNo][i] = max * Math.min(0.95, Math.abs(rand.nextGaussian()));
-            if (data[dimNo][i] < min) data[dimNo][i] = min * Math.min(0.95, Math.abs(rand.nextGaussian()));
+            if (mts.getData()[dimNo][i] > max) mts.getData()[dimNo][i] = max * Math.min(0.95, Math.abs(rand.nextGaussian()));
+            if (mts.getData()[dimNo][i] < min) mts.getData()[dimNo][i] = min * Math.min(0.95, Math.abs(rand.nextGaussian()));
 
-            label[i] = 1;
+            mts.getLabel()[i] = 1;
         }
     }
 
     // 生成集体全球异常值
-    public void collectiveGlobalOutliers(int dimNo, double ratio, double factor, int radius, String option, double coef, double noiseAmp, int level, double freq, double offset, double[] base) {
+    public void collectiveGlobalOutliers(MTS mts, int dimNo, double ratio, double factor, int radius, String option, double coef, double noiseAmp, int level, double freq, double offset, double[] base) {
         Random rand = new Random();
-        int[] position = rand.ints((int) (STREAM_LENGTH * ratio / (2 * radius)), 0, STREAM_LENGTH).distinct().toArray();
+        int[] position = rand.ints((int) (mts.getSTREAM_LENGTH() * ratio / (2 * radius)), 0, mts.getSTREAM_LENGTH()).distinct().toArray();
 
         if (!option.equals("square") && !option.equals("triangle") && !option.equals("other")) {
             throw new IllegalArgumentException("'option' must be one of 'square', 'triangle', or 'other'.");
@@ -112,45 +93,45 @@ public class AnomalyDataService {
 
         double[] subData;
         if (option.equals("square")) {
-            subData = squareSine(level, STREAM_LENGTH, freq, coef, offset, noiseAmp);
+            subData = squareSine(level, mts.getSTREAM_LENGTH(), freq, coef, offset, noiseAmp);
         } else if (option.equals("triangle")) {
-            subData = squareTriangle(level, STREAM_LENGTH, freq, coef, offset, noiseAmp);
+            subData = squareTriangle(level, mts.getSTREAM_LENGTH(), freq, coef, offset, noiseAmp);
         } else {
-            subData = collectiveGlobalSynthetic(STREAM_LENGTH, base, coef, noiseAmp);
+            subData = collectiveGlobalSynthetic(mts.getSTREAM_LENGTH(), base, coef, noiseAmp);
         }
 
         for (int i : position) {
             int start = Math.max(0, i - radius);
-            int end = Math.min(STREAM_LENGTH, i + radius);
+            int end = Math.min(mts.getSTREAM_LENGTH(), i + radius);
             for (int j = start; j < end; j++) {
-                data[dimNo][j] = (subData[j] * factor + data[dimNo][j]) / (1 + factor);
+                mts.getData()[dimNo][j] = (subData[j] * factor + mts.getData()[dimNo][j]) / (1 + factor);
             }
-            Arrays.fill(label, start, end, 1);
+            Arrays.fill(mts.getLabel(), start, end, 1);
         }
     }
 
     // 生成集体趋势异常值
-    public void collectiveTrendOutliers(int dimNo, double ratio, double factor, int radius) {
-        Random rand = new Random();
-        int T = 300;
-        int[] position = rand.ints((int) (STREAM_LENGTH * ratio / (2 * radius + T)), 0, STREAM_LENGTH).distinct().toArray();
-
-        for (int i : position) {
-            int start = Math.max(0, i - radius);
-            int end = Math.min(STREAM_LENGTH, i + radius);
-            double[] slope = new double[end - start];
-            for (int j = 0; j < slope.length; j++) {
-                slope[j] = (rand.nextBoolean() ? 1 : -1) * factor;
-            }
-            for (int j = start; j < end; j++) {
-                data[dimNo][j] = dataOrigin[dimNo][j] + slope[j - start];
-            }
-            for (int j = end; j < STREAM_LENGTH; j++) {
-                data[dimNo][j] += slope[slope.length - 1];
-            }
-            Arrays.fill(label, start, Math.min(end + T, STREAM_LENGTH), 1);
-        }
-    }
+//    public void collectiveTrendOutliers(MTS mts, int dimNo, double ratio, double factor, int radius) {
+//        Random rand = new Random();
+//        int T = 300;
+//        int[] position = rand.ints((int) (mts.getSTREAM_LENGTH() * ratio / (2 * radius + T)), 0, mts.getSTREAM_LENGTH()).distinct().toArray();
+//
+//        for (int i : position) {
+//            int start = Math.max(0, i - radius);
+//            int end = Math.min(mts.getSTREAM_LENGTH(), i + radius);
+//            double[] slope = new double[end - start];
+//            for (int j = 0; j < slope.length; j++) {
+//                slope[j] = (rand.nextBoolean() ? 1 : -1) * factor;
+//            }
+//            for (int j = start; j < end; j++) {
+//                mts.getData()[dimNo][j] = mts.getDataOrigin()[dimNo][j] + slope[j - start];
+//            }
+//            for (int j = end; j < mts.getSTREAM_LENGTH(); j++) {
+//                mts.getData()[dimNo][j] += slope[slope.length - 1];
+//            }
+//            Arrays.fill(mts.getLabel(), start, Math.min(end + T, mts.getSTREAM_LENGTH()), 1);
+//        }
+//    }
 
     // 分割数组
     private double[][] split(double[] array, int n) {
@@ -166,15 +147,15 @@ public class AnomalyDataService {
     }
 
     // 生成集体季节性异常值
-    public void collectiveSeasonalOutliers(int dimNo, double ratio, double factor, int radius) {
+    public void collectiveSeasonalOutliers(MTS mts, int dimNo, double ratio, double factor, int radius) {
         Random rand = new Random();
-        int[] position = rand.ints((int) (STREAM_LENGTH * ratio / (2 * radius)), 0, STREAM_LENGTH).distinct().toArray();
+        int[] position = rand.ints((int) (mts.getSTREAM_LENGTH() * ratio / (2 * radius)), 0, mts.getSTREAM_LENGTH()).distinct().toArray();
 
         for (int i : position) {
             int start = Math.max(0, i - radius);
-            int end = Math.min(STREAM_LENGTH, i + radius);
+            int end = Math.min(mts.getSTREAM_LENGTH(), i + radius);
             int length = end - start;
-            double[] tmp = Arrays.copyOfRange(data[dimNo], start, end);
+            double[] tmp = Arrays.copyOfRange(mts.getData()[dimNo], start, end);
             double[][] splitData = split(tmp, length / (int) factor + 1);
             double[] result = new double[tmp.length];
             int idx = 0;
@@ -192,8 +173,101 @@ public class AnomalyDataService {
                 result[index] = result[result.length - 1];
                 result[result.length - 1] = 0;
             }
-            System.arraycopy(result, 0, data[dimNo], start, length);
-            Arrays.fill(label, start, end, 1);
+            System.arraycopy(result, 0, mts.getData()[dimNo], start, length);
+            Arrays.fill(mts.getLabel(), start, end, 1);
+        }
+    }
+
+    public void collectiveTrendOutliers(MTS mts, int dimNo, double ratio, double factor, int radius) {
+        Random rand = new Random();
+        int T = 100;
+        // 生成位置数组，表示趋势异常的位置
+        int numRandoms = (int) Math.round(mts.getSTREAM_LENGTH() * ratio / (2 * radius + T));
+
+        // 生成随机数，范围在 [0, STREAM_LENGTH)
+        int[] position = rand.ints(numRandoms, 0, mts.getSTREAM_LENGTH()).toArray();
+
+        // 打印结果
+//        for (int pos : position) {
+//            System.out.println(pos);
+//        }
+        for (int i : position) {
+            // 确定异常的起始和结束位置
+            int start = Math.max(0, i - radius);
+            int end = Math.min(mts.getSTREAM_LENGTH(), i + radius);
+
+
+            // 创建趋势的斜率，随机选择正或负趋势
+            double slopeSign = rand.nextBoolean() ? 1 : -1;
+            double[] slope = new double[end - start];
+            for (int j = 0; j < slope.length; j++) {
+                slope[j] = slopeSign * factor * j;
+            }
+
+            // 将斜率应用于数据
+            for (int j = start; j < end; j++) {
+                mts.getData()[dimNo][j] = mts.getDataOrigin()[dimNo][j] + slope[j - start];
+            }
+
+            // 在异常的末尾继续应用趋势
+            for (int j = end; j < mts.getSTREAM_LENGTH(); j++) {
+                mts.getData()[dimNo][j] += slope[slope.length - 1];
+            }
+
+            // 设置标签，标记哪些位置是异常值
+            int labelEnd = Math.min(end + T, mts.getSTREAM_LENGTH());
+            System.out.println(start);
+            System.out.println(labelEnd);
+            Arrays.fill(mts.getLabel(), start, labelEnd, 1);
+        }
+    }
+
+    public void collectiveSeasonalOutliers(MTS mts, int dimNo, double ratio, int factor, int radius) {
+        Random rd = new Random();
+        int positionSize = (int) Math.round(mts.getSTREAM_LENGTH() * ratio / (2 * radius));
+        int[] position = new int[positionSize];
+
+        for (int i = 0; i < positionSize; i++) {
+            position[i] = (int) (Math.random() * mts.getSTREAM_LENGTH());
+        }
+
+        for (int i : position) {
+            int start = Math.max(0, i - radius);
+            int end = Math.min(mts.getSTREAM_LENGTH(), i + radius);
+            int length = end - start;
+            List<Double> tmp = new ArrayList<>();
+
+            for (int j = start; j < end; j++) {
+                tmp.add(mts.getData()[dimNo][j]);
+            }
+
+            List<Double> result = new ArrayList<>();
+            for (int j = 0; j < factor; j++) {
+                Collections.addAll(result, tmp.toArray(new Double[0]));
+            }
+
+            // Randomly select elements from the result list
+            for (int j = 0; j < result.size(); j++) {
+                double value = rd.nextDouble();
+                int index = (int) (value * result.size());
+                result.set(j, result.get(index));
+            }
+
+            // Randomly remove elements from the result list
+            List<Integer> indices = new ArrayList<>();
+            for (int j = 0; j < result.size(); j++) {
+                indices.add(j);
+            }
+            Collections.shuffle(indices);
+            for (int j = 0; j < result.size() - length; j++) {
+                result.remove(indices.get(j));
+            }
+
+            // Update data and label
+            for (int j = 0; j < length; j++) {
+                mts.getData()[dimNo][start + j] = result.get(j);
+                mts.getLabel()[start + j] = 1;
+            }
         }
     }
 

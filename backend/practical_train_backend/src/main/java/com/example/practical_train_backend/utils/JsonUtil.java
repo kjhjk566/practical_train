@@ -8,10 +8,10 @@ import java.io.*;
 public class JsonUtil {
 
     //json转对象
-    public void main(){
-        String myPath = "templateData/normal_1.json";
+    public void main(String myPath){
+//        String myPath = "templateData/normal_1.json";
         String path = JsonUtil.class.getClassLoader().getResource(myPath).getPath();
-        String s = JsonUtil.readJsonFile(path);
+        String s = readJsonFile(path);
         JSONObject jobj = JSON.parseObject(s);
         System.out.println("data"+jobj.get("normal_1"));
     }
@@ -21,7 +21,7 @@ public class JsonUtil {
      * @param fileName
      * @return
      */
-    public static String readJsonFile(String fileName) {
+    public String readJsonFile(String fileName) {
         String jsonStr = "";
         try {
             File jsonFile = new File(fileName);
