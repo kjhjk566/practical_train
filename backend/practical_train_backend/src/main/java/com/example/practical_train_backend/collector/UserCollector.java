@@ -1,27 +1,36 @@
 package com.example.practical_train_backend.collector;
 
 import com.example.practical_train_backend.entity.ResponseVO;
-import com.example.practical_train_backend.entity.User;
 import com.example.practical_train_backend.service.UserService;
+import com.example.practical_train_backend.entity.User;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
 public class UserCollector {
+
     @Autowired
     private UserService userService;
 
     @GetMapping("/get_all")
     public ResponseVO<List<User>> getAllUser(){
         List<User> arr= userService.getAllUser();
-
         return ResponseVO.success(arr);
+    }
+
+    @PostMapping("/login")
+    public ResponseVO<String> login(@RequestBody User loginRequest) {
+        System.out.println(loginRequest);
+        boolean isValidUser = userService.validateUser(loginRequest.getUsername(), loginRequest.getPassword());
+        if (isValidUser) {
+            return ResponseVO.success("Success");
+        } else {
+            return ResponseVO.error("Invalid username or password");
+        }
     }
 
     @GetMapping("/test")
