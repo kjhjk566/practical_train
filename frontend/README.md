@@ -1,117 +1,220 @@
+# frontend
 
-# Vue 项目 README
+> KPI anomaly data simulation
 
-## 项目介绍
+## 0. 环境配置
 
-这是一个基于 Vue.js 构建的 Web 项目，使用 Yarn 作为包管理工具。本指南将帮助您在 macOS 和 Windows 上配置开发环境，并介绍如何启动项目。
+- 安装nodejs(v16.16.0)
+  - 方法1: 直接安装
+    https://nodejs.org/zh-cn/
+  - 方法2: 使用nvm安装
+    - 安装nvmhttps://github.com/coreybutler/nvm-windows/releases
+    - 安装nodejs(需要管理员权限)
 
-## 环境要求
+    > nvm install 16.16.0
+    > nvm use 16.16.0
+    >
+- 配置npm镜像源
 
-- Node.js (版本 12.x 或更高)
-- Yarn (版本 1.x 或更高)
-- Vue CLI (全局安装)
+> npm config set registry https://registry.npm.taobao.org
 
-## 在 macOS 上配置开发环境
+- 配置npm全局和缓存位置
 
-1. **安装 Homebrew（如果尚未安装）**:
+> npm config set prefix "D:\nodeJs\nodeJs_install\node_global"
+> npm config set cache "D:\nodeJs\nodeJs_install\node_cache"
 
-    打开终端并输入以下命令安装 Homebrew:
-    
-    ```bash
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    ```
+## 1. 项目搭建
 
-2. **安装 Node.js 和 Yarn**:
+- 使用webpack搭建项目
 
-    使用 Homebrew 安装 Node.js 和 Yarn:
-    
-    ```bash
-    brew install node
-    brew install yarn
-    ```
+> vue init webpack _frontend
 
-3. **安装 Vue CLI**:
+- 注: 除了vue-router, 其他选项均不安装
 
-    全局安装 Vue CLI:
-    
-    ```bash
-    yarn global add @vue/cli
-    ```
+## 2. 运行步骤
 
-4. **克隆项目仓库**:
+- 进入frontend目录
 
-    使用以下命令克隆项目仓库:
-    
-    ```bash
-    git clone <your-repository-url>
-    cd <your-project-directory>
-    ```
+> cd frontend
 
-5. **安装依赖**:
+- 安装npm依赖
 
-    在项目目录下运行以下命令安装依赖:
-    
-    ```bash
-    yarn install
-    ```
+> yarn install
 
-## 在 Windows 上配置开发环境
+- 运行项目
 
-1. **安装 Node.js**:
+> yarn run dev
 
-    从 [Node.js 官方网站](https://nodejs.org/) 下载并安装适用于 Windows 的 Node.js。
+## 3. 项目结构
 
-2. **安装 Yarn**:
+```
+frontend
+├─ README.md
+├─ build // 构建工具
+├─ config // 配置文件
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.js
+├─ src
+│  ├─ App.vue // 所有页面的总组件
+│  ├─ assets // 存放静态资源
+│  │  ├─ css 
+│  │  ├─ images
+│  │  └─ js
+│  │     └─ index.js // 存放常用js函数
+│  ├─ components // 多次使用或共用的组件
+│  │  ├─ footer.vue
+│  │  └─ header.vue
+│  ├─ main.js // 项目入口以及总配置
+│  ├─ pages // 页面
+│  │  ├─ tests // 多个相关页面放在同一个文件夹
+│  │  │  ├─ test1.vue
+│  │  │  └─ test2.vue
+│  │  └─ Test.vue // 测试页面
+│  └─ router // 路由跳转
+│     └─ index.js
+└─ static
+   └─ .gitkeep
+```
 
-    从 [Yarn 官方网站](https://classic.yarnpkg.com/en/docs/install#windows-stable) 下载并安装 Yarn。
+## 4. 全局配置
 
-3. **安装 Vue CLI**:
+1. 跨域配置
 
-    打开命令提示符（或 PowerShell），然后运行以下命令全局安装 Vue CLI:
-    
-    ```bash
-    yarn global add @vue/cli
-    ```
+   - 在config/index.js中配置proxyTable
+   - 例如:
 
-4. **克隆项目仓库**:
+   ```javascript
+   proxyTable: {
+     '/api': {
+       target: 'http://localhost:8080',
+       changeOrigin: true,
+       secure: false,
+       pathRewrite: {
+           '^/api': ''
+       }
+     }
+   }
+   ```
 
-    使用以下命令克隆项目仓库:
-    
-    ```bash
-    git clone <your-repository-url>
-    cd <your-project-directory>
-    ```
+   - 说明:
+     - 前端请求时使用/api替代target
+     - changeOrigin表示是否跨域
+     - pathRewrite表示重写url
+     - secure表示是否https协议
+2. 组件全局配置
 
-5. **安装依赖**:
+   - 在main.js中配置
+   - 例如:
 
-    在项目目录下运行以下命令安装依赖:
-    
-    ```bash
-    yarn install
-    ```
+   ```javascript
+   import elementUI from 'element-ui'
+   import 'element-ui/lib/theme-chalk/index.css'
+   Vue.use(elementUI)
+   ```
 
-## 启动项目
+## 5. 项目规范
 
-1. **开发模式下运行项目**:
+1. 请求接口
 
-    在项目目录下运行以下命令启动开发服务器:
-    
-    ```bash
-    yarn serve
-    ```
+   - 已在main.js中配置axios
+     '''javascript
+     import axios from 'axios'
+     Vue.property.$http = axios
+     '''
+   - 前端请求方式
 
-    服务器启动后，您可以在浏览器中访问 `http://localhost:8080` 查看项目。
+   ```javascript
+       const params = new URLSearchParams()
+       params.append('username', 'admin')
+       this.$http.post('/api/test', params).then(res => {
+           console.log(res)
+       }).catch(err => {
+           console.log(err)
+       })
+   ```
+2. 路由管理
 
-2. **构建项目**:
+   - src/router/index.js
 
-    如果您准备将项目部署到生产环境，可以运行以下命令构建项目:
-    
-    ```bash
-    yarn build
-    ```
+   ```javascript
+       export default new Router({
+           routes: [
+               {
+                   path: '/',
+                   name: 'Test',
+                   component: () => import('@/pages/Test')
+               }
+           ]
+       })
+   ```
+3. vue文件结构
 
-    构建输出将存储在 `dist/` 目录下。
+   ```vue
+   <template>
+   <div></div>
+   </template>
 
-## 结语
+   <script>
+   export default {
+       components: {},
+       data() {
+       return {};
+       },
+       methods: {},
+       mounted() {}
+   };
+   </script>
 
-按照上述步骤，您应该能够在 macOS 或 Windows 上成功配置开发环境并启动 Vue 项目。如有任何问题，请参考官方文档或联系项目维护者。
+   <style scoped>
+   </style>
+   ```
+4. vue规范
+
+- Vue 官方为组件选项推荐的默认顺序
+
+  - 定义（提供组件的选项）
+
+    - `is`
+  - 列表渲染（创建多个变化的相同元素)
+
+    - `v-for`
+  - 条件渲染（元素是否渲染/显示）
+
+    - `v-if`
+    - `v-else-if`
+    - `v-else`
+    - `v-show`
+    - `v-cloak`
+  - 渲染方式（改变元素的渲染方式）
+
+    - `v-pre`
+    - `v-once`
+  - 全局感知
+
+    - `id`
+  - 唯一的 attribute（需要唯一值的 attribute）
+
+    - `ref`
+    - `key`
+  - 双向绑定（把绑定和事件结合起来）
+
+    - `v-model`
+  - 事件（组件事件监听器）
+
+    - `v-on`
+  - 内容（覆写元素的内容）
+
+    - `v-html`
+    - `v-text`
+  - 不推荐同时使用 `v-if` 和 `v-for`。
+- 使用 `data` 里的变量时请先在 `data` 里面初始化；
+- `props` 指定类型，也就是 `type`；
+- 不在 `mounted`、`created` 之类的方法里直接写取异步数据的逻辑，将方法抽象出来，只在此处调用；
+
+5. 命名规范
+   - 文件夹名为小写字母，多个单词用下划线连接
+   - 页面、组件均使用大驼峰命名
+   - 变量、方法、属性使用小驼峰命名
+   - props、emit使用小驼峰命名

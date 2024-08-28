@@ -1,5 +1,6 @@
 package com.example.practical_train_backend.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.practical_train_backend.dao.UserMapper;
 import com.example.practical_train_backend.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,3 +80,10 @@ public class UserService {
     }
 }
 
+    }
+
+    public boolean validateUser(String username, String password) {
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        return user != null && user.getPassword().equals(password);
+    }
+}
