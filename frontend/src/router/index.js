@@ -60,3 +60,4 @@ export default new Router({
     }
   ]
 });
+// () => store.getters.isLoggedIn ? import('@/pages/Dashboard') : import('@/pages/LoginPage')

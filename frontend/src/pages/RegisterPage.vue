@@ -53,17 +53,23 @@ export default {
       }
 
       // 如果密码一致，向后端发送请求
-      const params = new URLSearchParams();
-      params.append("username", this.loginForm.username);
-      params.append("password", this.loginForm.password);
-      this.$http
-        .post("http://localhost:5000/", params)
+      const requestData = {
+        username: this.loginForm.username,
+        password: this.loginForm.password
+      };
+      console.log(requestData)
+        this.$http
+        .post("http://localhost:8080/user/register", requestData) // 修改为正确的 API 端点
         .then((res) => {
-          if (res.data === "Success") {
+          console.log(res)
+          if (res.data.message === "Registration successful") {
             this.$message.success('注册成功');
             this.$router.push({ name: 'LoginPage' });
-          } else {
+          } else if (res.data.message === "Username already exists") {
             this.$message.error('用户名已经被使用');
+          }
+          else {
+             this.$message.error('注册失败');
           }
         });
     },

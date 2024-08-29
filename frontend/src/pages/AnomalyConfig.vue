@@ -422,33 +422,35 @@ export default {
     },
     confirm() {
       this.dialogVisible = false;
-      const params = new URLSearchParams();
-      params.append("labName", this.ruleForm.labName);
-      params.append("sourceName", this.ruleForm.sourceName);
-      params.append("globalRatio", this.ruleForm.globalRatio);
-      params.append("contextRatio", this.ruleForm.contextRatio);
-      params.append("seasonalRatio", this.ruleForm.seasonalRatio);
-      params.append("trendRatio", this.ruleForm.trendRatio);
-      params.append("patternRatio", this.ruleForm.patternRatio);
-      params.append("globalRadius", this.ruleForm.globalRadius);
-      params.append("contextRadius", this.ruleForm.contextRadius);
-      params.append("seasonalRadius", this.ruleForm.seasonalRadius);
-      params.append("trendRadius", this.ruleForm.trendRadius);
-      params.append("patternRadius", this.ruleForm.patternRadius);
-      params.append("globalFactor", this.ruleForm.globalFactor);
-      params.append("contextFactor", this.ruleForm.contextFactor);
-      params.append("seasonalFactor", this.ruleForm.seasonalFactor);
-      params.append("trendFactor", this.ruleForm.trendFactor);
-      params.append("patternFactor", this.ruleForm.patternFactor);
-      params.append("globalIndex", this.globalIndex);
-      params.append("contextIndex", this.contextIndex);
-      params.append("seasonalIndex", this.seasonalIndex);
-      params.append("trendIndex", this.trendIndex);
-      params.append("patternIndex", this.patternIndex);
-      params.append("patterns", this.ruleForm.patterns);
+      const params = {
+        labName: this.ruleForm.labName,
+        sourceName: this.ruleForm.sourceName,
+        globalRatio: this.ruleForm.globalRatio,
+        contextRatio: this.ruleForm.contextRatio,
+        seasonalRatio: this.ruleForm.seasonalRatio,
+        trendRatio: this.ruleForm.trendRatio,
+        patternRatio: this.ruleForm.patternRatio,
+        globalRadius: this.ruleForm.globalRadius,
+        contextRadius: this.ruleForm.contextRadius,
+        seasonalRadius: this.ruleForm.seasonalRadius,
+        trendRadius: this.ruleForm.trendRadius,
+        patternRadius: this.ruleForm.patternRadius,
+        globalFactor: this.ruleForm.globalFactor,
+        contextFactor: this.ruleForm.contextFactor,
+        seasonalFactor: this.ruleForm.seasonalFactor,
+        trendFactor: this.ruleForm.trendFactor,
+        patternFactor: this.ruleForm.patternFactor,
+        globalIndex: this.globalIndex,
+        contextIndex: this.contextIndex,
+        seasonalIndex: this.seasonalIndex,
+        trendIndex: this.trendIndex,
+        patternIndex: this.patternIndex,
+        patterns: this.ruleForm.patterns
+      };
+      console.log(params)
       this.showFullScreenLoading();
       this.$http
-        .post("http://localhost:5000/anomalyInject/inject", params)
+        .post("http://localhost:8080/anomaly/inject", params)
         .then((res) => {
           console.log(res)
         });

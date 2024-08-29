@@ -11,7 +11,7 @@ public class CORSConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 允许所有路径
-                .allowedOrigins("http://localhost:8080") // 允许来自特定来源
+                .allowedOrigins("http://localhost:8081") // 允许来自特定来源
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的 HTTP 方法
                 .allowedHeaders("*") // 允许的请求头
                 .allowCredentials(true); // 允许携带身份凭证

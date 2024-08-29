@@ -78,9 +78,6 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
-}
-
-    }
 
     public boolean validateUser(String username, String password) {
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
