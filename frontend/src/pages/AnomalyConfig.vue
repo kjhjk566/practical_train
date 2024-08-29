@@ -46,13 +46,13 @@
             </el-select>
           </el-form-item>
           <el-form-item label="异常比率">
-            <el-input class="input" v-model="ruleForm.globalRatio"></el-input>
+            <el-input class="input" v-model.number="ruleForm.globalRatio"></el-input>
           </el-form-item>
           <el-form-item label="影响范围">
-            <el-input class="input" v-model="ruleForm.globalRadius"></el-input>
+            <el-input class="input" v-model.number="ruleForm.globalRadius"></el-input>
           </el-form-item>
           <el-form-item label="影响因子">
-            <el-input class="input" v-model="ruleForm.globalFactor"></el-input>
+            <el-input class="input" v-model.number="ruleForm.globalFactor"></el-input>
           </el-form-item>
         </el-form>
         <el-form
@@ -81,13 +81,13 @@
             </el-select>
           </el-form-item>
           <el-form-item label="异常比率">
-            <el-input class="input" v-model="ruleForm.contextRatio"></el-input>
+            <el-input class="input" v-model.number="ruleForm.contextRatio"></el-input>
           </el-form-item>
           <el-form-item label="影响范围">
-            <el-input class="input" v-model="ruleForm.contextRadius"></el-input>
+            <el-input class="input" v-model.number="ruleForm.contextRadius"></el-input>
           </el-form-item>
           <el-form-item label="影响因子">
-            <el-input class="input" v-model="ruleForm.contextFactor"></el-input>
+            <el-input class="input" v-model.number="ruleForm.contextFactor"></el-input>
           </el-form-item>
         </el-form>
         <el-form
@@ -116,18 +116,18 @@
             </el-select>
           </el-form-item>
           <el-form-item label="异常比率">
-            <el-input class="input" v-model="ruleForm.seasonalRatio"></el-input>
+            <el-input class="input" v-model.number="ruleForm.seasonalRatio"></el-input>
           </el-form-item>
           <el-form-item label="影响范围">
             <el-input
               class="input"
-              v-model="ruleForm.seasonalRadius"
+              v-model.number="ruleForm.seasonalRadius"
             ></el-input>
           </el-form-item>
           <el-form-item label="影响因子">
             <el-input
               class="input"
-              v-model="ruleForm.seasonalFactor"
+              v-model.number="ruleForm.seasonalFactor"
             ></el-input>
           </el-form-item>
         </el-form>
@@ -157,13 +157,13 @@
             </el-select>
           </el-form-item>
           <el-form-item label="异常比率">
-            <el-input class="input" v-model="ruleForm.trendRatio"></el-input>
+            <el-input class="input" v-model.number="ruleForm.trendRatio"></el-input>
           </el-form-item>
           <el-form-item label="影响范围">
-            <el-input class="input" v-model="ruleForm.trendRadius"></el-input>
+            <el-input class="input" v-model.number="ruleForm.trendRadius"></el-input>
           </el-form-item>
           <el-form-item label="影响因子">
-            <el-input class="input" v-model="ruleForm.trendFactor"></el-input>
+            <el-input class="input" v-model.number="ruleForm.trendFactor"></el-input>
           </el-form-item>
         </el-form>
         <el-form
@@ -192,13 +192,13 @@
             </el-select>
           </el-form-item>
           <el-form-item label="异常比率">
-            <el-input class="input" v-model="ruleForm.patternRatio"></el-input>
+            <el-input class="input" v-model.number="ruleForm.patternRatio"></el-input>
           </el-form-item>
           <el-form-item label="影响范围">
-            <el-input class="input" v-model="ruleForm.patternRadius"></el-input>
+            <el-input class="input" v-model.number="ruleForm.patternRadius"></el-input>
           </el-form-item>
           <el-form-item label="影响因子">
-            <el-input class="input" v-model="ruleForm.patternFactor"></el-input>
+            <el-input class="input" v-model.number="ruleForm.patternFactor"></el-input>
           </el-form-item>
         </el-form>
         <div class="patterns">
