@@ -36,18 +36,20 @@ export default {
     },
     handleLogin() {
       // 发送登录请求
-      const params = new URLSearchParams();
-      params.append("username", this.loginForm.username);
-      params.append("password", this.loginForm.password);
-      
-      this.$http
-        .post("http://localhost:8080/user/login", params) // 修改为正确的 API 端点
+      const requestData = {
+        username: this.loginForm.username,
+        password: this.loginForm.password
+      };
+
+        this.$http
+        .post("http://localhost:8080/user/login", requestData) // 修改为正确的 API 端点
         .then((res) => {
           const { status, message } = res.data;
           
           if (status === 200) {
             this.$message.success('登录成功');
-            this.$root.$emit('login-success'); // 触发全局登录成功事件
+            this.$store.commit('login');
+            // this.$root.$emit('login-success'); // 触发全局登录成功事件
 
             // 获取原始页面路径并跳转回去
             const redirect = this.$route.query.redirect || '/';
