@@ -6,6 +6,10 @@ import java.util.List;
 
 @Data
 public class AnomalyInfo {
+    private String username;
+    private String labName;
+    private String sourceName;
+
     private List<Integer> globalIndex;
     private double globalRatio;
     private double globalFactor;
