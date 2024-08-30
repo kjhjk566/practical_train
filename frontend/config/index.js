@@ -6,19 +6,26 @@ const path = require('path')
 
 module.exports = {
   dev: {
-
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-        "/display": {
-            target: "http://localhost:8080",
-            changeOrigin: true,
-            secure: false,
-            pathRewrite: {
-            "^/display": "/"
-            }
+      "/display8080": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        pathRewrite: {
+          "^/display8080": "/"
         }
+      },
+      "/display5000": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+        pathRewrite: {
+          "^/display5000": "/"
+        }
+      }
     },
 
     // Various Dev Server settings
@@ -29,7 +36,6 @@ module.exports = {
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
     /**
      * Source Maps
      */
