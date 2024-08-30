@@ -16,5 +16,4 @@ public class Experiment {
     private Integer metricNum;
     private String timeSeriesData;
 
-
 }
