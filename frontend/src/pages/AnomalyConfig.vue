@@ -423,6 +423,7 @@ export default {
     confirm() {
       this.dialogVisible = false;
       const params = {
+        username: this.$store.getters.getGlobalUserName,
         labName: this.ruleForm.labName,
         sourceName: this.ruleForm.sourceName,
         globalRatio: this.ruleForm.globalRatio,

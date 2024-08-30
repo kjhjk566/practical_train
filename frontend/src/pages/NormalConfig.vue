@@ -87,6 +87,7 @@ export default {
     confirm() {
       this.dialogTableVisible = false;
       const params = new URLSearchParams();
+      params.append("username", this.$store.getters.getGlobalUserName);
       params.append("labName", this.labName);
       params.append("metricNum", this.metricsNum);
       params.append("smoothness", this.smoothness);

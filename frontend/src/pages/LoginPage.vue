@@ -48,7 +48,7 @@ export default {
           
           if (status === 200) {
             this.$message.success('登录成功');
-            this.$store.commit('login');
+            this.$store.commit('login',this.loginForm.username);
             // this.$root.$emit('login-success'); // 触发全局登录成功事件
 
             // 获取原始页面路径并跳转回去
