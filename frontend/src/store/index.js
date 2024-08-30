@@ -9,6 +9,7 @@ export default new Vuex.Store({
     isUpdate: false,
     algorithm: '',
     normalState: 'NormalExperiment',
+    GlobalUserName: '',
     isLoggedIn: false, // 添加登录状态
     userImage: require('@/images/login.jpg') // 默认头像
   },
@@ -25,12 +26,14 @@ export default new Vuex.Store({
     updateNormalState(state, normalState) {
       state.normalState = normalState;
     },
-    login(state) {
+    login(state,username) {
       state.isLoggedIn = true;
+      state.GlobalUserName = username;
       state.userImage = require('@/images/logout.jpg'); // 登录后的头像
     },
     logout(state) {
       state.isLoggedIn = false;
+      state.GlobalUserName = '';
       state.userImage = require('@/images/login.jpg'); // 默认头像
     }
   },
@@ -52,6 +55,9 @@ export default new Vuex.Store({
     },
     userImage(state) {
       return state.userImage;
-    }
+    },
+    getGlobalUserName(state) {
+      return state.GlobalUserName;
+    },
   }
 });
