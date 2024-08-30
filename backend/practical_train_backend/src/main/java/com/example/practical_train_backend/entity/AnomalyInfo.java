@@ -20,7 +20,7 @@ public class AnomalyInfo {
     private double patternRatio;
     private double patternFactor;
     private int patternRadius;
-    private int patterns;
+    private List<Integer> patterns;
 
     private List<Integer> trendIndex;
     private double trendRatio;

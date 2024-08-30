@@ -82,7 +82,7 @@ public class AnomalyDataCollector {
         }
 
         if (anomalyInfo.getPatternIndex() != null) {
-            String shape = anomalyInfo.getPatterns()==1 ? "square" : "triangle";
+            String shape = anomalyInfo.getPatterns().size()==1 ? "square" : "triangle";
             for (Integer index : anomalyInfo.getPatternIndex()) {
                 anomalyDataService.collectiveGlobalOutliers(mts, index, anomalyInfo.getPatternRatio(), anomalyInfo.getPatternFactor(), anomalyInfo.getPatternRadius(), shape, 1.5, 0.03, 20, 0.04, 0.0, new double[1]);
             }
