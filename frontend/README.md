@@ -16,7 +16,7 @@
     >
 - 配置npm镜像源
 
-> npm config set registry https://registry.npm.taobao.org
+> npm config set registry https://registry.npmmirror.com
 
 - 配置npm全局和缓存位置
 
