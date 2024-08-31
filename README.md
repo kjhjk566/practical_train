@@ -3,9 +3,27 @@
 - 进入frontend目录输入以下命令
 
 > yarn install
+>
 > yarn run dev
 
 ## 后端运行方式
+
+1 使用IDEA打开backend文件夹,下载maven依赖
+
+2 随后在backend路径下运行
+```
+mvn clean package
+```
+将项目打为jar包
+
+3 在机器上运行 
+```
+java -jar practical_train_backend-0.0.1-SNAPSHOT.jar
+```
+来运行后端程序
+
+
+
 
 ## 开发流程
 
