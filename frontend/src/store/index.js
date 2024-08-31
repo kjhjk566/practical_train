@@ -9,8 +9,8 @@ export default new Vuex.Store({
     isUpdate: false,
     algorithm: '',
     normalState: 'NormalExperiment',
-    GlobalUserName: '',
-    isLoggedIn: false, // 添加登录状态
+    GlobalUserName: localStorage.getItem('username') || '', // 从 localStorage 读取用户名
+    isLoggedIn: JSON.parse(localStorage.getItem('isLoggedIn')) || false, // 从 localStorage 读取登录状态
     userImage: require('@/images/login.jpg') // 默认头像
   },
   mutations: {
@@ -26,15 +26,21 @@ export default new Vuex.Store({
     updateNormalState(state, normalState) {
       state.normalState = normalState;
     },
-    login(state,username) {
+    login(state, username) {
       state.isLoggedIn = true;
       state.GlobalUserName = username;
       state.userImage = require('@/images/logout.jpg'); // 登录后的头像
+      // 将登录信息写入 localStorage
+      localStorage.setItem('username', username);
+      localStorage.setItem('isLoggedIn', true);
     },
     logout(state) {
       state.isLoggedIn = false;
       state.GlobalUserName = '';
       state.userImage = require('@/images/login.jpg'); // 默认头像
+      // 清除 localStorage 中的登录信息
+      localStorage.removeItem('username');
+      localStorage.setItem('isLoggedIn', false);
     }
   },
   getters: {
