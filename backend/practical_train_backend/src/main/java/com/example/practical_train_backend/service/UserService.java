@@ -80,7 +80,21 @@ public class UserService {
     }
 
     public boolean validateUser(String username, String password) {
-        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
-        return user != null && user.getPassword().equals(password);
+        try {
+            // 查找用户
+            User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+            if (user == null) {
+                return false;
+            }
+
+            // 对输入的密码进行加密
+            String encryptedPassword = encryptPassword(password);
+
+            // 验证加密后的密码是否与数据库中的密码匹配
+            return user.getPassword().equals(encryptedPassword);
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new RuntimeException(e);
+        }
     }
 }
