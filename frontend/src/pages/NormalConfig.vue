@@ -99,7 +99,13 @@ export default {
         .post("http://localhost:5000/generateNormal/generate", params)
         .then((res) => {
           console.log(res)
+          this.$http
+            .post("http://localhost:8080/data/insert", params)
+            .then((res) => {
+            console.log(res)
+          });
         });
+      
     },
     listenExperiment(data) {
       console.log(data);

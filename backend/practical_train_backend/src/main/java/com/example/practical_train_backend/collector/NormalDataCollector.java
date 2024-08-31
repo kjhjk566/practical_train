@@ -85,11 +85,9 @@ public class NormalDataCollector {
             @RequestParam("correlation") double correlation,
             @RequestParam("metricNum") int metricNum) {
         JsonUtil jsonUtil = new JsonUtil();
-        String myPath = "templateData/" + username;
+        String myPath = "templateData/" + username + "/" + labName + ".json";
         String path = JsonUtil.class.getClassLoader().getResource(myPath).getPath();
         String s = jsonUtil.readJsonFile(path);
-        JSONObject jsonObject = JSON.parseObject(s);
-
 
         Experiment e = new Experiment();
         e.setCorrelation(correlation);
@@ -101,7 +99,7 @@ public class NormalDataCollector {
         e.setTimeSeriesData(s);
         return ResponseVO.success(experimentMapper.insertExperiment(e));
     }
-    @GetMapping("/get_data")
+    @PostMapping("/get_data")
     public ResponseVO<Object> getData(
             @RequestParam("labName") String labName,
             @RequestParam("username") String username) {

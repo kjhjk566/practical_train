@@ -3,7 +3,7 @@
     <div>
       <el-input
         placeholder="请输入内容"
-        v-model="entity"
+        v-model="labName"
         class="input-with-select"
       >
         <template slot="prepend">Lab Name</template>
@@ -48,7 +48,7 @@ export default {
   components: { MetricChart },
   data() {
     return {
-      entity: "normal_1",
+      labName: "test1",
       metrics: 10,
       smoothness: 0.5,
       periodicity: 0.8,
@@ -63,22 +63,26 @@ export default {
     load() {
       // this.$showLoading();
       // this.$http.get(`/data/data_${this.metrics}_${this.time_span}_${this.sample_freq}_${this.metric_similiarity_per}_${this.metric_cyclicity_per}_${this.noise_amp}_${this.time_index}.csv`)
+      const params = new URLSearchParams();
+      params.append("username", this.$store.getters.getGlobalUserName);
+      params.append("labName", this.labName);
       this.$http
-        .get("/static/synthetic/" + this.entity + ".json")
+        .post("http://localhost:8080/data/get_data", params)
         .then(response => {
-          console.log(response);
-          console.log(response.data[this.entity]["data"].length);
-          console.log(response.data[this.entity]["data"][0]);
-          console.log(response.data[this.entity]["label"]);
+          let data =  JSON.parse(response.data["data"]["timeSeriesData"]);
+          console.log(data);
+          console.log(data[this.labName]["data"]);
+          console.log(data[this.labName]["data"][0]);
+          console.log(data[this.labName]["label"]);
           this.data = [];
-          for (let i = 0; i < response.data[this.entity]["data"].length; i++) {
-            this.data.push(response.data[this.entity]["data"][i]);
+          for (let i = 0; i < data[this.labName]["data"].length; i++) {
+            this.data.push(data[this.labName]["data"][i]);
           }
-          this.label = response.data[this.entity]["label"];
+          this.label = data[this.labName]["label"];
           // this.label.splice(0,2,1,1)
-          this.smoothness = response.data[this.entity]["smoothness"];
-          this.periodicity = response.data[this.entity]["periodicity"];
-          this.correlation = response.data[this.entity]["correlation"];
+          this.smoothness = data[this.labName]["smoothness"];
+          this.periodicity = data[this.labName]["periodicity"];
+          this.correlation = data[this.labName]["correlation"];
           this.$children.showCharts;
         })
         .catch(err => {
