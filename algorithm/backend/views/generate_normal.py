@@ -146,6 +146,7 @@ def test_gn():
 def generate_normal_data():
     if request.method == "POST":
         labName = request.form["labName"]
+        username = request.form["username"]
         metric_num = int(request.form["metricNum"])
         smoothness = float(request.form["smoothness"])
         periodicity = float(request.form["periodicity"])
@@ -191,7 +192,12 @@ def generate_normal_data():
                     "label": label
                 }
             }
-            with open(f'../frontend/static/synthetic/{labName}.json', 'w') as f:
+
+            folder_path = f'../backend/practical_train_backend/src/main/resources/templateData/{username}'
+            if not os.path.exists(folder_path):
+                # 创建文件夹
+                os.makedirs(folder_path)
+            with open(f'../backend/practical_train_backend/src/main/resources/templateData/{username}/{labName}.json', 'w') as f:
                 json.dump(save_dict, f)
             return "generate normal data successfully"
         except Exception as e:

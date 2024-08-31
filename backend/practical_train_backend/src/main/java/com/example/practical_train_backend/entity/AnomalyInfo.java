@@ -9,6 +9,7 @@ public class AnomalyInfo {
     private String username;
     private String labName;
     private String sourceName;
+    private int metricNum;
 
     private List<Integer> globalIndex;
     private double globalRatio;

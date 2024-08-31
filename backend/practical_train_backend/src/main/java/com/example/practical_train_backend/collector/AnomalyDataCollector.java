@@ -52,10 +52,11 @@ public class AnomalyDataCollector {
 //        JsonUtil jsonUtil = new JsonUtil();
 //        String myPath = "templateData/normal_1.json";
 //        String path = JsonUtil.class.getClassLoader().getResource(myPath).getPath();
-        if (! experimentMapper.ifExists(anomalyInfo.getUsername(),anomalyInfo.getSourceName())){
-            return ResponseVO.error("not get data");
+        if (experimentMapper.ifExists(anomalyInfo.getUsername(),anomalyInfo.getLabName())){
+            return ResponseVO.error("data exist");
         }
         Experiment e = experimentMapper.getByUsernameAndExperimentName(anomalyInfo.getUsername(),anomalyInfo.getSourceName());
+
 
         String s = e.getTimeSeriesData();
         JSONObject jobj = JSON.parseObject(s);
@@ -109,22 +110,49 @@ public class AnomalyDataCollector {
             for (Integer index : anomalyInfo.getSeasonalIndex()) {
                 anomalyDataService.collectiveSeasonalOutliers(mts, index, anomalyInfo.getSeasonalRatio(), anomalyInfo.getSeasonalFactor(), anomalyInfo.getSeasonalRadius());
             }
+        };
+
+        JSONArray outerArray = new JSONArray();
+        double[][] dataArray = mts.getData();
+        // 遍历二维数组的每一行
+        for (double[] row : dataArray) {
+            // 创建内层的JSONArray
+            JSONArray innerArray = new JSONArray();
+
+            // 遍历行中的每个元素
+            for (double value : row) {
+                // 将元素添加到内层的JSONArray
+                innerArray.add(value);
+            }
+
+            // 将内层的JSONArray添加到外层的JSONArray
+            outerArray.add(innerArray);
         }
-        experimentJson.put("data",Arrays.toString(mts.getData()));
+
+        JSONArray labelArray = new JSONArray();
+
+        // 遍历一维数组，将每个元素添加到JSONArray中
+        for (int value : mts.getLabel()) {
+            labelArray.add(value);
+        }
+
+        experimentJson.put("data",outerArray);
+        experimentJson.put("label", labelArray);
         jobj.put(anomalyInfo.getLabName(),experimentJson);
         jobj.remove(anomalyInfo.getSourceName());
         Experiment experiment = new Experiment();
         experiment.setUsername(anomalyInfo.getUsername());
         experiment.setExperimentName(anomalyInfo.getLabName());
-        experiment.setSmoothness((Double) experimentJson.get("smoothness"));
-        experiment.setPeriodicity((Double)experimentJson.get("periodicity"));
-        experiment.setCorrelation((Double)experimentJson.get("correlation"));
-        experiment.setMetricNum((Integer) experimentJson.get("metricNum"));
+        experiment.setSmoothness(((Number) experimentJson.get("smoothness")).doubleValue());
+        experiment.setPeriodicity(((Number) experimentJson.get("periodicity")).doubleValue());
+        experiment.setCorrelation(((Number) experimentJson.get("correlation")).doubleValue());
+        System.out.println(experimentJson.toString());
+        experiment.setMetricNum(((Number) experimentJson.get("metricsNum")).intValue());
         experiment.setTimeSeriesData(jobj.toString());
         experimentMapper.insertExperiment(experiment);
 
 
-        return ResponseVO.success(Arrays.toString(mts.getData()));
+        return ResponseVO.success(experiment.getTimeSeriesData());
     }
 
 }

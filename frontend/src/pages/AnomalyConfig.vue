@@ -348,6 +348,7 @@ export default {
       patternIndex: [],
       indexOptions: [],
       options: [{}],
+      metricNum: 0,
       ruleForm: {
         labName: "",
         sourceName: "",
@@ -426,6 +427,7 @@ export default {
         username: this.$store.getters.getGlobalUserName,
         labName: this.ruleForm.labName,
         sourceName: this.ruleForm.sourceName,
+        metricNum: this.metricNum,
         globalRatio: this.ruleForm.globalRatio,
         contextRatio: this.ruleForm.contextRatio,
         seasonalRatio: this.ruleForm.seasonalRatio,
@@ -490,13 +492,16 @@ export default {
       }
     },
     getOptions() {
+      const params = new URLSearchParams();
+      params.append("username", this.$store.getters.getGlobalUserName);
+      params.append("labName", this.ruleForm.sourceName);
+      console.log(params)
       this.$http
-        .get("/static/synthetic/"+this.ruleForm.sourceName+".json")
+        .post("http://localhost:8080/data/get_data", params)
         .then(response => {
-          console.log(response);
-          console.log(response.data);
-          console.log(response.data[this.ruleForm.sourceName]);
-          let length = response.data[this.ruleForm.sourceName]["metricsNum"]
+          console.log(response.data)
+          let length =  JSON.parse(response.data["data"]["metricNum"]);
+          this.metricNum = length;
           console.log(length)
           this.options = []
           for (let i = 0; i < length; i++) {
